@@ -1,6 +1,6 @@
 import os
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters, ConversationHandler
 
 TOKEN = os.getenv("BOT_TOKEN")
 ADMIN_ID = 68700299
@@ -29,7 +29,6 @@ async def get_name(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def get_level(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     name = context.user_data["name"]
     level = update.message.text
     username = update.message.from_user.username
@@ -39,26 +38,25 @@ async def get_level(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         username = "username yo'q"
 
-    admin_text = f"""
-Yangi ro'yxatdan o'tgan foydalanuvchi
+    text = f"""
+Yangi foydalanuvchi:
 
 Ism: {name}
 Level: {level}
 Username: {username}
 """
 
-    await context.bot.send_message(chat_id=ADMIN_ID, text=admin_text)
+    await context.bot.send_message(chat_id=ADMIN_ID, text=text)
 
     await update.message.reply_text(
-        "Ro'yxatdan o'tdingiz.\n\nYangiliklarni shu kanalda kuzating:\nhttps://t.me/TedxYazyavan"
+        "Ro'yxatdan o'tdingiz.\nYangiliklar uchun kanal:\nhttps://t.me/TedxYazyavan"
     )
 
     return ConversationHandler.END
 
 
 def main():
-
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = Application.builder().token(TOKEN).build()
 
     conv = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
@@ -66,11 +64,12 @@ def main():
             NAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_name)],
             LEVEL: [MessageHandler(filters.TEXT & ~filters.COMMAND, get_level)],
         },
-        fallbacks=[]
+        fallbacks=[],
     )
 
     app.add_handler(conv)
 
+    print("Bot ishga tushdi...")
     app.run_polling()
 
 
